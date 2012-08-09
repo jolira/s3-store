@@ -1,7 +1,7 @@
 {
     "name":"s3-store",
     "version":"0.0.1",
-    "description":"Simple Data Storage using S3",
+    "description":"Simple Data Storage (SDS) using S3",
     "keywords":["database", "s3"],
     "contributors": [
         "Joachim Kainz <jfk@jolira.com> (http://www.jolira.com)"
