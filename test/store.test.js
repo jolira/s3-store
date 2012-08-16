@@ -36,13 +36,17 @@
             this.GetObject = function (arg, cb) {
                 switch (getCount++) {
                     case 0:
+                        return cb({
+                            Body:{ "Error":{ "Code":"NoSuchKey" } }
+                        }, undefined);
+                    case 1:
                         return cb(undefined, {
                             Headers:{
                                 etag:"c471a30c5517c593dbc2dc310f6bfbc5"
                             },
                             Body:"{\"vals\":{\"a\":1,\"b\":2,\"c\":3,\"d\":4},\"mods\":{}}"
                         });
-                    case 1:
+                    case 2:
                         return cb(undefined, {
                             Headers:{
                                 etag:"\"3c1eb0c39a16516e57b57b3394c2f7f5\""
@@ -90,7 +94,7 @@
             topic:function (db, data, etag) {
                 var self = this;
 
-                db.update(URL, Date.now(), {
+                db.save(URL, Date.now(), {
                     a:111,
                     b:null
                 }, function (err, data, etag) {
@@ -108,7 +112,7 @@
             "topic":function (db) {
                 var self = this;
 
-                db.create(URL, OBJ, function (err, data, etag) {
+                db.save(URL, Date.now(), OBJ, function (err, data, etag) {
                     self.callback(err, db, data, etag);
                 });
             },
