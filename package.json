@@ -1,6 +1,6 @@
 {
     "name":"s3-store",
-    "version":"0.1.4",
+    "version":"0.1.5",
     "description":"Simple Data Storage (SDS) using S3",
     "keywords":["database", "s3"],
     "contributors": [
