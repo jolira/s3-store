@@ -13,7 +13,45 @@
      *   "aws-region": "us-west-1"
      * }
      */
-    var MockS3 = function () {
+    var redisClient = function(){
+            var db = {};
+
+            return {
+                setnx: function(args, cb) {
+                    var key = args[0],
+                        val = db[key];
+
+                    if (val) {
+                        return 0;
+                    }
+
+                    db[key] = "" + args[1];
+
+                    return cb(undefined, 1);
+                },
+                get: function(args, cb) {
+                    var key = args[0];
+
+                    return cb(undefined, db[key]);
+                },
+                getset: function(args, cb) {
+                    var key = args[0],
+                        val = db[key];
+
+                    db[key] = "" + args[1];
+
+                    return cb(undefined, val);
+                },
+                del: function(args, cb) {
+                    var key = args[0];
+
+                    delete db[key];
+
+                    return cb();
+                }
+            };
+        },
+        MockS3 = function () {
             var putCount = 0,
                 getCount = 0;
 
@@ -61,7 +99,6 @@
         },
         OBJ = {a:1, b:2, c:3, d:4 },
         URL = "test/1",
-        now = Date.now(),
         loader = require('server-config'),
         assert = require('assert'),
         vows = require('vows'),
@@ -125,6 +162,15 @@
         },
         openTest = {
             "topic":function (config) {
+                if (config["redis"] === 'redis') {
+                    var redis = horaa('redis');
+
+                    redis.hijack('createClient', function(port, host, options) {
+                        assert.isString(host);
+                        return redisClient();
+                    });
+                }
+
                 if (config["aws-access-key-id"] === "aws-access-key-id" || config["aws-secret-access-key"] === "aws-secret-access-key") {
                     var awssum = horaa('awssum');
 
@@ -151,6 +197,7 @@
         'load the configuration':{
             topic:function () {
                 loader({
+                    "redis":"redis",
                     "aws-region":"aws-region",
                     "aws-account-id":"aws-account-id",
                     "aws-access-key-id":"aws-access-key-id",
